@@ -1,25 +1,40 @@
-import logo from './logo.svg';
+import { useEffect } from 'react';
+import { connect } from 'react-redux';
+import { fetchUsersRequest } from './redux/user/userActionCreators'
+import { List, ListItem, ListItemText, CircularProgress } from '@material-ui/core';
 import './App.css';
 
-function App() {
+function App({ users, loading, error, fetchUsers}) {
+      useEffect(() => {
+        fetchUsers()
+      }, [fetchUsers])
+  if (loading) {
+    return <CircularProgress />;
+  }
+
+  if (error) {
+    return <div>Error: {error.message}</div>;
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <List>
+      {users.map((user) => (
+        <ListItem key={user.id}>
+          <ListItemText primary={user.name} secondary={user.email} />
+        </ListItem>
+      ))}
+    </List>
   );
 }
 
-export default App;
+const mapStateToProps = (state) => ({
+  users: state.users,
+  loading: state.loading,
+  error: state.error,
+});
+
+const mapDispatchToProps = {
+  fetchUsers: fetchUsersRequest,
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);
